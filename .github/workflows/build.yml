@@ -107,8 +107,9 @@ jobs:
             git commit -m "Initial commit for build"
           fi
           
-          # Run the build script with local environment flag
-          ./scripts/build.sh -d ${{ matrix.distribution }} -n -l
+          # Run the build script with local environment flag and current branch
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          ./scripts/build.sh -d ${{ matrix.distribution }} -n -l -t "$CURRENT_BRANCH"
           
           # Copy build results back to original location with distribution-specific path
           mkdir -p ../../globaleaks-whistleblowing-software/build/${{ matrix.distribution }}
