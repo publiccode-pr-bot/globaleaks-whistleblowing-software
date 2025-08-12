@@ -1,0 +1,108 @@
+<div class="modal-header d-flex justify-content-between align-items-center">
+  <h5 class="modal-title mb-0">{{'Audit log' | translate}}</h5>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate">
+    <i class="fa-solid fa-times"></i>
+  </button>
+</div>
+
+<div class="modal-body">
+  <!-- Search Bar -->
+  <div class="row mb-3">
+    <div class="col-md-8"></div>
+    <div class="col-md-4">
+      <div class="input-group input-group-sm">
+        <input type="text" class="form-control" placeholder="{{'Search' | translate}}" 
+               [(ngModel)]="searchTerm" (input)="onSearchChange()">
+        <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit Log Table -->
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th class="sortable" (click)="toggleSort('user')">
+            {{'User' | translate}}
+            @if (sortField === 'user') {
+              <i class="fa-solid" [class]="sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
+            } @else {
+              <i class="fa-solid fa-sort text-muted"></i>
+            }
+          </th>
+          <th>
+            <span class="sortable" (click)="toggleSort('action')">
+              {{'Type'|translate}}
+              @if (sortField === 'action') {
+                <i class="fa-solid" [class]="sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
+              } @else {
+                <i class="fa-solid fa-sort text-muted"></i>
+              }
+              <span class="dropdown-multi-select-container ms-1" (click)="$event.stopPropagation()">
+                <i class="fa-solid fa-filter" [ngClass]="{ filterSelected: checkTypeFilter(dropdownTypeModel) }" (click)="toggleTypeDropdown();$event.stopPropagation();"></i>
+                <span [class.d-none]="!typeDropdownVisible" (click)="$event.stopPropagation()">
+                  <ng-multiselect-dropdown [class.dropdown-visible]="typeDropdownVisible" [settings]="dropdownSettings" [data]="dropdownTypeData" [(ngModel)]="dropdownTypeModel" (ngModelChange)="onTypeFilterChange($event)"></ng-multiselect-dropdown>
+                </span>
+              </span>
+            </span>
+          </th>
+          <th class="sortable" (click)="toggleSort('timestamp')">
+            {{'Date' | translate}}
+            @if (sortField === 'timestamp') {
+              <i class="fa-solid" [class]="sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
+            } @else {
+              <i class="fa-solid fa-sort text-muted"></i>
+            }
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of getPaginatedData(); track entry.id) {
+          <tr>
+            <td>{{entry.user}}</td>
+            <td>
+              <span class="badge bg-light text-dark">
+                <span [class]="getTypeDotColor(entry.type)">●</span> {{entry.action}}
+              </span>
+            </td>
+            <td>{{entry.timestamp | date:'dd-MM-yyyy HH:mm:ss'}}</td>
+          </tr>
+        }
+        @if (getPaginatedData().length === 0) {
+          <tr>
+            <td colspan="3" class="text-center text-muted py-3">
+              {{'No results' | translate}}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (getFilteredData().length > pageSize) {
+    <div>
+      <ngb-pagination dir="ltr" class="d-flex justify-content-center" [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="getFilteredData().length">
+        <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
+        <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
+        <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
+        <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+      </ngb-pagination>
+    </div>
+  }
+  
+  <!-- Export Button -->
+  <div class="d-flex justify-content-end mt-2">
+    <button class="btn btn-sm btn-link" type="button" (click)="exportTipAuditLog()">
+      <i class="fa-solid fa-download"></i>
+      <span>{{ 'Export' | translate }}</span>
+    </button>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-outline-secondary" (click)="cancel()">
+    <i class="fa-solid fa-times"></i>
+    <span>{{'Close' | translate}}</span>
+  </button>
+</div> 
